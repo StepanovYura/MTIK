@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cctype>
+#include <iomanip>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -59,10 +60,24 @@ public:
     }
 
     void printTokens() const {
-        std::cout << "\nЛексема | Тип\n";
-        std::cout << "--------+------------------\n";
+        // Определяем максимальную длину лексемы
+        size_t maxLen = 8; // минимальная длина заголовка "Лексема"
         for (const auto& tok : tokens) {
-            std::cout << tok.value << " | " << tokenTypeToString(tok.type) << "\n";
+            if (tok.value.length() > maxLen) maxLen = tok.value.length();
+        }
+        const int widthLexeme = static_cast<int>(maxLen) + 2;  // +2 для отступа
+        const int widthType = 16;  // достаточно для "IDENTIFIER", "CONST_STRING" и т.п.
+
+        // Заголовок
+        std::cout << "\n" << std::left << std::setw(widthLexeme) << "Лексема"
+                << " | " << std::setw(widthType) << "Тип" << "\n";
+        // Разделительная линия
+        std::cout << std::string(widthLexeme + widthType + 3, '-') << "\n";
+
+        // Данные
+        for (const auto& tok : tokens) {
+            std::cout << std::left << std::setw(widthLexeme) << tok.value
+                    << " | " << std::setw(widthType) << tokenTypeToString(tok.type) << "\n";
         }
     }
 
