@@ -10,7 +10,7 @@ int main() {
     int a = 10;          // целочисленная переменная
     int b = 20;
     int result = 0;
-
+    
     /* Арифметические операции */
     result = a + b;
     std::cout << "a + b = " << result << std::endl;
@@ -26,9 +26,12 @@ int main() {
     for (int i = 0; i < 3; i++) {
         std::cout << "i = " << i << std::endl;
     }
-
+    /*
+    khtfdkyltf
+    kjb jk
+    */
     // Вызов функции
-    int sum = add(a, b);
+    int     sum = add(a, b);
     std::cout << "Sum via function: " << sum << std::endl;
 
     return 0;

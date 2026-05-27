@@ -1,0 +1,443 @@
+{
+  "type": "Program",
+  "children": [
+    {
+      "type": "IncludeDirective",
+      "value": "iostream"
+    },
+    {
+      "type": "FunctionDef",
+      "value": "add",
+      "children": [
+        {
+          "type": "Type",
+          "value": "int"
+        },
+        {
+          "type": "Parameter",
+          "children": [
+            {
+              "type": "Type",
+              "value": "int"
+            },
+            {
+              "type": "Identifier",
+              "value": "x"
+            }
+          ]
+        },
+        {
+          "type": "Parameter",
+          "children": [
+            {
+              "type": "Type",
+              "value": "int"
+            },
+            {
+              "type": "Identifier",
+              "value": "y"
+            }
+          ]
+        },
+        {
+          "type": "Block",
+          "children": [
+            {
+              "type": "ReturnStmt",
+              "children": [
+                {
+                  "type": "BinaryExpr",
+                  "value": "+",
+                  "left":
+                    {
+                      "type": "Identifier",
+                      "value": "x"
+                    },
+                  "right":
+                    {
+                      "type": "Identifier",
+                      "value": "y"
+                    }                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "value": "main",
+      "children": [
+        {
+          "type": "Type",
+          "value": "int"
+        },
+        {
+          "type": "Block",
+          "children": [
+            {
+              "type": "VarDecl",
+              "value": "a",
+              "children": [
+                {
+                  "type": "Type",
+                  "value": "int"
+                },
+                {
+                  "type": "Literal",
+                  "value": "10"
+                }
+              ]
+            },
+            {
+              "type": "VarDecl",
+              "value": "b",
+              "children": [
+                {
+                  "type": "Type",
+                  "value": "int"
+                },
+                {
+                  "type": "Literal",
+                  "value": "20"
+                }
+              ]
+            },
+            {
+              "type": "VarDecl",
+              "value": "result",
+              "children": [
+                {
+                  "type": "Type",
+                  "value": "int"
+                },
+                {
+                  "type": "Literal",
+                  "value": "0"
+                }
+              ]
+            },
+            {
+              "type": "ExpressionStmt",
+              "children": [
+                {
+                  "type": "AssignStmt",
+                  "value": "=",
+                  "left":
+                    {
+                      "type": "Identifier",
+                      "value": "result"
+                    },
+                  "right":
+                    {
+                      "type": "BinaryExpr",
+                      "value": "+",
+                      "left":
+                        {
+                          "type": "Identifier",
+                          "value": "a"
+                        },
+                      "right":
+                        {
+                          "type": "Identifier",
+                          "value": "b"
+                        }                    }                }
+              ]
+            },
+            {
+              "type": "ExpressionStmt",
+              "children": [
+                {
+                  "type": "BinaryExpr",
+                  "value": "<<",
+                  "left":
+                    {
+                      "type": "BinaryExpr",
+                      "value": "<<",
+                      "left":
+                        {
+                          "type": "BinaryExpr",
+                          "value": "<<",
+                          "left":
+                            {
+                              "type": "Identifier",
+                              "value": "std::cout"
+                            },
+                          "right":
+                            {
+                              "type": "Literal",
+                              "value": "a + b ="
+                            }                        },
+                      "right":
+                        {
+                          "type": "Identifier",
+                          "value": "result"
+                        }                    },
+                  "right":
+                    {
+                      "type": "Identifier",
+                      "value": "std::endl"
+                    }                }
+              ]
+            },
+            {
+              "type": "IfStmt",
+              "children": [
+                {
+                  "type": "BinaryExpr",
+                  "value": "&&",
+                  "left":
+                    {
+                      "type": "BinaryExpr",
+                      "value": "<",
+                      "left":
+                        {
+                          "type": "Identifier",
+                          "value": "a"
+                        },
+                      "right":
+                        {
+                          "type": "Identifier",
+                          "value": "b"
+                        }                    },
+                  "right":
+                    {
+                      "type": "BinaryExpr",
+                      "value": ">",
+                      "left":
+                        {
+                          "type": "Identifier",
+                          "value": "b"
+                        },
+                      "right":
+                        {
+                          "type": "Literal",
+                          "value": "0"
+                        }                    }                },
+                {
+                  "type": "Block",
+                  "children": [
+                    {
+                      "type": "ExpressionStmt",
+                      "children": [
+                        {
+                          "type": "BinaryExpr",
+                          "value": "<<",
+                          "left":
+                            {
+                              "type": "BinaryExpr",
+                              "value": "<<",
+                              "left":
+                                {
+                                  "type": "Identifier",
+                                  "value": "std::cout"
+                                },
+                              "right":
+                                {
+                                  "type": "Literal",
+                                  "value": "a is less than b"
+                                }                            },
+                          "right":
+                            {
+                              "type": "Identifier",
+                              "value": "std::endl"
+                            }                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ElseStmt",
+                  "children": [
+                    {
+                      "type": "Block",
+                      "children": [
+                        {
+                          "type": "ExpressionStmt",
+                          "children": [
+                            {
+                              "type": "BinaryExpr",
+                              "value": "<<",
+                              "left":
+                                {
+                                  "type": "BinaryExpr",
+                                  "value": "<<",
+                                  "left":
+                                    {
+                                      "type": "Identifier",
+                                      "value": "std::cout"
+                                    },
+                                  "right":
+                                    {
+                                      "type": "Literal",
+                                      "value": "a is not less than b"
+                                    }                                },
+                              "right":
+                                {
+                                  "type": "Identifier",
+                                  "value": "std::endl"
+                                }                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ForStmt",
+              "children": [
+                {
+                  "type": "VarDecl",
+                  "value": "i",
+                  "children": [
+                    {
+                      "type": "Type",
+                      "value": "int"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "BinaryExpr",
+                  "value": "<",
+                  "left":
+                    {
+                      "type": "Identifier",
+                      "value": "i"
+                    },
+                  "right":
+                    {
+                      "type": "Literal",
+                      "value": "3"
+                    }                },
+                {
+                  "type": "UnaryExpr",
+                  "value": "++",
+                  "left":
+                    {
+                      "type": "Identifier",
+                      "value": "i"
+                    }                },
+                {
+                  "type": "Block",
+                  "children": [
+                    {
+                      "type": "ExpressionStmt",
+                      "children": [
+                        {
+                          "type": "BinaryExpr",
+                          "value": "<<",
+                          "left":
+                            {
+                              "type": "BinaryExpr",
+                              "value": "<<",
+                              "left":
+                                {
+                                  "type": "BinaryExpr",
+                                  "value": "<<",
+                                  "left":
+                                    {
+                                      "type": "Identifier",
+                                      "value": "std::cout"
+                                    },
+                                  "right":
+                                    {
+                                      "type": "Literal",
+                                      "value": "i ="
+                                    }                                },
+                              "right":
+                                {
+                                  "type": "Identifier",
+                                  "value": "i"
+                                }                            },
+                          "right":
+                            {
+                              "type": "Identifier",
+                              "value": "std::endl"
+                            }                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "VarDecl",
+              "value": "sum",
+              "children": [
+                {
+                  "type": "Type",
+                  "value": "int"
+                },
+                {
+                  "type": "CallExpr",
+                  "value": "add",
+                  "children": [
+                    {
+                      "type": "Identifier",
+                      "value": "a"
+                    },
+                    {
+                      "type": "Identifier",
+                      "value": "b"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ExpressionStmt",
+              "children": [
+                {
+                  "type": "BinaryExpr",
+                  "value": "<<",
+                  "left":
+                    {
+                      "type": "BinaryExpr",
+                      "value": "<<",
+                      "left":
+                        {
+                          "type": "BinaryExpr",
+                          "value": "<<",
+                          "left":
+                            {
+                              "type": "Identifier",
+                              "value": "std::cout"
+                            },
+                          "right":
+                            {
+                              "type": "Literal",
+                              "value": "Sum via function:"
+                            }                        },
+                      "right":
+                        {
+                          "type": "Identifier",
+                          "value": "sum"
+                        }                    },
+                  "right":
+                    {
+                      "type": "Identifier",
+                      "value": "std::endl"
+                    }                }
+              ]
+            },
+            {
+              "type": "ReturnStmt",
+              "children": [
+                {
+                  "type": "Literal",
+                  "value": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

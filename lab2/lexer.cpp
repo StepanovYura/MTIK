@@ -8,47 +8,35 @@
 #include <unordered_map>
 #include <unordered_set>
 
-// Типы токенов
 enum class TokenType {
-    KEYWORD,
-    IDENTIFIER,
-    CONST_INT,
-    CONST_FLOAT,
-    CONST_STRING,
-    CONST_BOOL,
-    OPERATOR,
-    DELIMITER,
-    UNKNOWN,
-    ERROR
+    KEYWORD, IDENTIFIER, CONST_INT, CONST_FLOAT, CONST_STRING,
+    CONST_BOOL, OPERATOR, DELIMITER, UNKNOWN, ERROR
 };
 
-// Структура токена
 struct Token {
     TokenType type;
     std::string value;
     int line;
     int column;
-
     Token(TokenType t, const std::string& v, int l, int c)
         : type(t), value(v), line(l), column(c) {}
 };
 
 class Lexer {
 public:
-    Lexer(const std::string& source)
-        : source(source), pos(0), line(1), col(1) {}
+    Lexer(const std::string& source) : source(source), pos(0), line(1), col(1) {}
 
     std::vector<Token> tokenize() {
         tokens.clear();
         while (pos < source.size()) {
             char ch = source[pos];
-            if (std::isspace(ch)) {
+            if (std::isspace(static_cast<unsigned char>(ch))) {
                 skipWhitespace();
                 continue;
             }
-            if (std::isalpha(ch) || ch == '_') {
+            if (std::isalpha(static_cast<unsigned char>(ch)) || ch == '_') {
                 readIdentifierOrKeyword();
-            } else if (std::isdigit(ch)) {
+            } else if (std::isdigit(static_cast<unsigned char>(ch))) {
                 readNumber();
             } else if (ch == '"') {
                 readString();
@@ -56,59 +44,62 @@ public:
                 readOperatorOrDelimiter();
             }
         }
+        validateIncludeDirective();
         return tokens;
     }
 
-    void printTokens() const {
-        // Определяем максимальную длину лексемы
-        size_t maxLen = 8; // минимальная длина заголовка "Лексема"
-        for (const auto& tok : tokens) {
+    // Перегруженные методы для вывода в поток
+    void printTokens(std::ostream& os) const {
+        size_t maxLen = 8;
+        for (const auto& tok : tokens)
             if (tok.value.length() > maxLen) maxLen = tok.value.length();
-        }
-        const int widthLexeme = static_cast<int>(maxLen) + 2;  // +2 для отступа
-        const int widthType = 16;  // достаточно для "IDENTIFIER", "CONST_STRING" и т.п.
-
-        // Заголовок
-        std::cout << "\n" << std::left << std::setw(widthLexeme) << "Лексема"
-                << " | " << std::setw(widthType) << "Тип" << "\n";
-        // Разделительная линия
-        std::cout << std::string(widthLexeme + widthType + 3, '-') << "\n";
-
-        // Данные
-        for (const auto& tok : tokens) {
-            std::cout << std::left << std::setw(widthLexeme) << tok.value
-                    << " | " << std::setw(widthType) << tokenTypeToString(tok.type) << "\n";
-        }
+        const int widthLexeme = static_cast<int>(maxLen) + 2;
+        const int widthType = 16;
+        os << "\n" << std::left << std::setw(widthLexeme) << "Лексема"
+           << " | " << std::setw(widthType) << "Тип" << "\n";
+        os << std::string(widthLexeme + widthType + 3, '-') << "\n";
+        for (const auto& tok : tokens)
+            os << std::left << std::setw(widthLexeme) << tok.value
+               << " | " << std::setw(widthType) << tokenTypeToString(tok.type) << "\n";
     }
+    void printTokens() const { printTokens(std::cout); }
 
-    void printTokenSequence() const {
-        std::cout << "\n[";
+    void printTokenSequence(std::ostream& os) const {
+        os << "\n[\n\t";
         for (size_t i = 0; i < tokens.size(); ++i) {
-            std::cout << "(" << tokenTypeToString(tokens[i].type) << ", " << tokens[i].value << ")";
-            if (i != tokens.size() - 1) std::cout << ", ";
+            os << "(" << tokenTypeToString(tokens[i].type) << ", " << tokens[i].value << ")";
+            if (i != tokens.size() - 1) os << ", \n\t";
         }
-        std::cout << "]\n";
+        os << "\n]\n";
     }
+    void printTokenSequence() const { printTokenSequence(std::cout); }
 
     bool hasErrors() const { return !errors.empty(); }
-    void printErrors() const {
-        for (const auto& err : errors) {
-            std::cout << err << std::endl;
+
+    void printErrors(std::ostream& os) const {
+        for (const auto& err : errors) os << err << std::endl;
+    }
+    void printErrors() const { printErrors(std::cout); }
+
+    void saveToFile(const std::string& filename) const {
+        std::ofstream file(filename);
+        if (!file) {
+            std::cerr << "Не удалось создать файл: " << filename << std::endl;
+            return;
         }
+        printTokenSequence(file);
+        
+        std::cout << "Результат также сохранён в файл: " << filename << std::endl;
     }
 
 private:
     std::string source;
     size_t pos;
-    int line;
-    int col;
+    int line, col;
     std::vector<Token> tokens;
     std::vector<std::string> errors;
 
-    // Таблицы лексем
-    const std::unordered_set<std::string> keywords = {
-        "int", "if", "else", "for", "return", "include"
-    };
+    const std::unordered_set<std::string> keywords = {"int", "if", "else", "for", "return", "include"};
     const std::unordered_map<std::string, TokenType> operators = {
         {"=", TokenType::OPERATOR}, {"+", TokenType::OPERATOR}, {"-", TokenType::OPERATOR},
         {"*", TokenType::OPERATOR}, {"/", TokenType::OPERATOR}, {"<", TokenType::OPERATOR},
@@ -118,10 +109,9 @@ private:
         {"<<", TokenType::OPERATOR}, {">>", TokenType::OPERATOR}, {"::", TokenType::OPERATOR},
         {"#", TokenType::OPERATOR}
     };
-    const std::unordered_set<char> delimiterChars = {
-        ';', ',', '(', ')', '{', '}', '[', ']', '.'
-    };
+    const std::unordered_set<char> delimiterChars = {';', ',', '(', ')', '{', '}', '[', ']', '.'};
     const std::unordered_set<std::string> boolConstants = {"true", "false"};
+    const std::unordered_set<char> invalidChars = {'@', '$', '`', '~', '^'};
 
     std::string tokenTypeToString(TokenType type) const {
         switch (type) {
@@ -138,7 +128,7 @@ private:
     }
 
     void skipWhitespace() {
-        while (pos < source.size() && std::isspace(source[pos])) {
+        while (pos < source.size() && std::isspace(static_cast<unsigned char>(source[pos]))) {
             if (source[pos] == '\n') { line++; col = 1; }
             else col++;
             pos++;
@@ -148,34 +138,31 @@ private:
     void readIdentifierOrKeyword() {
         int startLine = line, startCol = col;
         std::string ident;
-        while (pos < source.size() && (std::isalnum(source[pos]) || source[pos] == '_')) {
+        while (pos < source.size() && (std::isalnum(static_cast<unsigned char>(source[pos])) || source[pos] == '_')) {
             ident += source[pos];
             if (source[pos] == '\n') { line++; col = 1; }
             else col++;
             pos++;
         }
-        // Проверка, что идентификатор не начинается с цифры (уже гарантировано условием вызова)
-        if (std::isdigit(ident[0])) {
+        if (std::isdigit(static_cast<unsigned char>(ident[0]))) {
             errors.push_back("Ошибка: идентификатор '" + ident + "' начинается с цифры (строка " +
                              std::to_string(startLine) + ", колонка " + std::to_string(startCol) + ")");
             tokens.emplace_back(TokenType::ERROR, ident, startLine, startCol);
             return;
         }
-        // Проверка, является ли ключевым словом
-        if (keywords.count(ident)) {
+        if (keywords.count(ident))
             tokens.emplace_back(TokenType::KEYWORD, ident, startLine, startCol);
-        } else if (boolConstants.count(ident)) {
+        else if (boolConstants.count(ident))
             tokens.emplace_back(TokenType::CONST_BOOL, ident, startLine, startCol);
-        } else {
+        else
             tokens.emplace_back(TokenType::IDENTIFIER, ident, startLine, startCol);
-        }
     }
 
     void readNumber() {
         int startLine = line, startCol = col;
         std::string num;
         bool hasDot = false;
-        while (pos < source.size() && (std::isdigit(source[pos]) || source[pos] == '.')) {
+        while (pos < source.size() && (std::isdigit(static_cast<unsigned char>(source[pos])) || source[pos] == '.')) {
             if (source[pos] == '.') {
                 if (hasDot) {
                     errors.push_back("Ошибка: две точки подряд в числе '" + num + "' (строка " +
@@ -192,11 +179,17 @@ private:
             num += source[pos];
             pos++;
         }
-        // После числа может быть буква – это ошибка
-        if (pos < source.size() && std::isalpha(source[pos])) {
+        // Если точка есть, но после неё нет цифр (последний символ - точка)
+        if (hasDot && num.back() == '.') {
+            errors.push_back("Ошибка: некорректная вещественная константа – после точки ожидаются цифры (строка " +
+                             std::to_string(startLine) + ", колонка " + std::to_string(startCol) + ")");
+            tokens.emplace_back(TokenType::ERROR, num, startLine, startCol);
+            return;
+        }
+        if (pos < source.size() && std::isalpha(static_cast<unsigned char>(source[pos]))) {
             errors.push_back("Ошибка: недопустимый символ в числовой константе '" + num + source[pos] + "' (строка " +
                              std::to_string(startLine) + ", колонка " + std::to_string(startCol) + ")");
-            while (pos < source.size() && std::isalpha(source[pos])) {
+            while (pos < source.size() && std::isalpha(static_cast<unsigned char>(source[pos]))) {
                 num += source[pos];
                 pos++;
             }
@@ -212,19 +205,16 @@ private:
     void readString() {
         int startLine = line, startCol = col;
         std::string str;
-        pos++; // пропустить открывающую кавычку
-        col++;
+        pos++; col++;
         bool closed = false;
         while (pos < source.size()) {
             char ch = source[pos];
             if (ch == '"') {
                 closed = true;
-                pos++;
-                col++;
+                pos++; col++;
                 break;
             }
             if (ch == '\\') {
-                // Экранирование – упрощённо
                 str += ch;
                 pos++; col++;
                 if (pos < source.size()) {
@@ -248,26 +238,48 @@ private:
     void readOperatorOrDelimiter() {
         int startLine = line, startCol = col;
         char ch = source[pos];
-        // Сначала проверяем, не является ли символ разделителем
+        if (invalidChars.count(ch)) {
+            errors.push_back("Ошибка: недопустимый символ '" + std::string(1, ch) + "' (строка " +
+                             std::to_string(startLine) + ", колонка " + std::to_string(startCol) + ")");
+            tokens.emplace_back(TokenType::ERROR, std::string(1, ch), startLine, startCol);
+            pos++; col++;
+            return;
+        }
         if (delimiterChars.count(ch)) {
             tokens.emplace_back(TokenType::DELIMITER, std::string(1, ch), startLine, startCol);
             pos++; col++;
             return;
         }
-        // Пытаемся считать оператор (максимальное сопоставление)
         std::string op;
-        while (pos < source.size() && !std::isspace(source[pos]) && !delimiterChars.count(source[pos]) &&
-               !std::isalnum(source[pos]) && source[pos] != '_') {
+        while (pos < source.size() && !std::isspace(static_cast<unsigned char>(source[pos])) &&
+               !delimiterChars.count(source[pos]) &&
+               !std::isalnum(static_cast<unsigned char>(source[pos])) && source[pos] != '_') {
             op += source[pos];
             pos++;
         }
-        // Проверяем, известен ли оператор
-        if (operators.count(op)) {
+        if (operators.count(op))
             tokens.emplace_back(TokenType::OPERATOR, op, startLine, startCol);
-        } else {
+        else {
             errors.push_back("Ошибка: неизвестный оператор '" + op + "' (строка " +
                              std::to_string(startLine) + ", колонка " + std::to_string(startCol) + ")");
             tokens.emplace_back(TokenType::ERROR, op, startLine, startCol);
+        }
+    }
+
+    void validateIncludeDirective() {
+        for (size_t i = 0; i < tokens.size(); ++i) {
+            if (tokens[i].type == TokenType::OPERATOR && tokens[i].value == "#") {
+                if (i + 1 >= tokens.size()) {
+                    errors.push_back("Ошибка: после '#' ожидается директива include (конец файла)");
+                    continue;
+                }
+                const Token& next = tokens[i+1];
+                if (next.type != TokenType::KEYWORD || next.value != "include") {
+                    errors.push_back("Ошибка: после '#' должно следовать ключевое слово 'include', найдено '" +
+                                     next.value + "' (строка " + std::to_string(next.line) +
+                                     ", колонка " + std::to_string(next.column) + ")");
+                }
+            }
         }
     }
 };
@@ -277,8 +289,6 @@ int main(int argc, char* argv[]) {
         std::cerr << "Usage: " << argv[0] << " <source_file>" << std::endl;
         return 1;
     }
-
-    // Чтение очищенного файла (результат ЛР1)
     std::ifstream file(argv[1]);
     if (!file.is_open()) {
         std::cerr << "Cannot open file: " << argv[1] << std::endl;
@@ -288,11 +298,9 @@ int main(int argc, char* argv[]) {
     buffer << file.rdbuf();
     std::string source = buffer.str();
 
-    // Лексический анализ
     Lexer lexer(source);
     auto tokens = lexer.tokenize();
 
-    // Вывод результатов
     lexer.printTokens();
     lexer.printTokenSequence();
 
@@ -303,6 +311,9 @@ int main(int argc, char* argv[]) {
     } else {
         std::cout << "\nЛексический анализ завершён успешно. Обнаружено " << tokens.size() << " токенов. Ошибок не найдено.\n";
     }
+
+    std::string outFilename = std::string("lexer_output_") + std::string(argv[1]).substr(0, 17) + ".txt";
+    lexer.saveToFile(outFilename);
 
     return 0;
 }

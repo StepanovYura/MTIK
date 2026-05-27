@@ -35,14 +35,19 @@ public:
             error = true;
             return code;
         }
+        if (openCount < closeCount) {
+            std::cerr << "Ошибка: лишний символ закрытого многострочного комментария" << std::endl;
+            error = true;
+            return code;
+        }
 
         // Удаление многострочных комментариев
         std::regex multiline("/\\*[\\s\\S]*?\\*/");
-        std::string result = std::regex_replace(code, multiline, "");
+        std::string result = std::regex_replace(code, multiline, " ");
 
         // Удаление однострочных комментариев
         std::regex singleline("//[^\\n]*");
-        result = std::regex_replace(result, singleline, "");
+        result = std::regex_replace(result, singleline, " ");
 
         return result;
     }
@@ -56,15 +61,18 @@ public:
 
         // Обрабатываем каждую строку
         while (std::getline(stream, line)) {
+            //std::cout << "Original line: '" << line << "'" << std::endl;
             // Удаляем начальные и конечные пробелы/табуляции
-            std::regex leading("[ \t]+");
+            std::regex leading("^[ \t]+");
             std::regex trailing("[ \t]+$");
             line = std::regex_replace(line, leading, "", std::regex_constants::format_first_only);
             line = std::regex_replace(line, trailing, "", std::regex_constants::format_first_only);
+            //std::cout << "Trimmed line: '" << line << "'" << std::endl;
 
             // Заменяем последовательности пробелов/табуляций на один пробел
             std::regex spaces("[ \t]+");
             line = std::regex_replace(line, spaces, " ");
+            //std::cout << "Cleaned line: '" << line << "'" << std::endl;
 
             // Пропускаем пустые строки
             if (!line.empty()) {
@@ -116,6 +124,18 @@ int main(int argc, char* argv[]) {
         std::string output = Preprocessor::process(filename);
         if (!output.empty()) {
             std::cout << output;
+
+            // Запись в файл
+            std::string outFilename = "preprocessed_test.cpp";
+            std::ofstream outFile(outFilename);
+            if (outFile.is_open()) {
+                outFile << output;
+                outFile.close();
+                std::cout << "\nРезультат также сохранён в файл: " << outFilename << std::endl;
+            } else {
+                std::cerr << "Не удалось создать выходной файл." << std::endl;
+            }
+
             std::cerr << "Ошибок не выявлено" << std::endl;
         }
     } catch (const std::exception& e) {

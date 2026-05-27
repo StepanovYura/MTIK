@@ -1,0 +1,15 @@
+=========== SYMBOL TABLE ===========
+
+Name           Type           Scope               Initialized    
+-----------------------------------------------------------------
+std::cout      ostream        Global              yes            
+std::endl      manipulator    Global              yes            
+add            int(func)      Global              yes            
+x              int            add                 yes            
+y              int            add                 yes            
+main           int(func)      Global              yes            
+a              int            main                yes            
+b              int            main                yes            
+result         int            main                yes            
+i              int            for                 yes            
+sum            int            main                yes            
